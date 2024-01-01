@@ -31,6 +31,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const usersCollection = client.db("UserManagement").collection("Users");
+    const postCollection = client.db("UserManagement").collection("posts");
 
     
     app.post("/users", async (req, res) => {
@@ -45,6 +46,14 @@ async function run() {
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
+
+    // Post apis
+
+    app.post("/dashboard/newpost", async(req,res)=>{
+      const post = req.body;
+      const result = await postCollection.insertOne(post);
+      res.send(post);
+    })
     
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
