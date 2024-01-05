@@ -32,8 +32,26 @@ async function run() {
     await client.connect();
     const usersCollection = client.db("UserManagement").collection("Users");
     const postCollection = client.db("UserManagement").collection("posts");
+    const permitCollection = client.db("UserManagement").collection("permits");
 
-    
+    // users Apis
+    app.get("/users",async(req,res)=>{
+      const users = await usersCollection.find().toArray();
+      res.send(users);
+    })
+    app.patch("/users/:email",async(req,res)=>{
+      const email = req.params.email;
+      const roles = req.body;
+      const query = {email:email}
+      // const user = await usersCollection.findOne(query)
+      const updateDoc = {
+        $set: {
+          role: roles
+        },
+      };
+      const result = await usersCollection.updateOne(query,updateDoc);
+      res.send(result);
+    })
     app.post("/users", async (req, res) => {
       const user = req.body;
      
@@ -49,10 +67,31 @@ async function run() {
 
     // Post apis
 
+    app.get("/dashboard/post",async(req,res)=>{
+      
+      const posts = await postCollection.find().toArray();
+      res.send(posts);
+    })
+
     app.post("/dashboard/newpost", async(req,res)=>{
-      const post = req.body;
-      const result = await postCollection.insertOne(post);
-      res.send(post);
+      const userPost = req.body;
+      const result = await postCollection.insertOne(userPost);
+      res.send(result);
+    })
+    
+
+
+    // permit related Api
+    app.get("/permit",async(req,res)=>{
+      const result = await permitCollection.find().toArray();
+      
+      res.send(result);
+    })
+    app.post("/permit",async(req,res)=>{
+      const permits = req.body;
+      console.log(permits);
+      const result = await permitCollection.insertOne(permits);
+      res.send(result);
     })
     
     // Send a ping to confirm a successful connection
