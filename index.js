@@ -36,17 +36,25 @@ async function run() {
 
     // users Apis
     app.get("/users",async(req,res)=>{
+     
       const users = await usersCollection.find().toArray();
       res.send(users);
+    })
+    app.get("/users/:email",async(req,res)=>{
+      const email = req.params.email;
+      const query = {email:email}
+      const result = await usersCollection.findOne(query)
+      res.send(result);
     })
     app.patch("/users/:email",async(req,res)=>{
       const email = req.params.email;
       const roles = req.body;
+      
       const query = {email:email}
-      // const user = await usersCollection.findOne(query)
+     
       const updateDoc = {
         $set: {
-          role: roles
+          permission: roles
         },
       };
       const result = await usersCollection.updateOne(query,updateDoc);
@@ -84,7 +92,6 @@ async function run() {
     // permit related Api
     app.get("/permit",async(req,res)=>{
       const result = await permitCollection.find().toArray();
-      
       res.send(result);
     })
     app.post("/permit",async(req,res)=>{
