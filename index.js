@@ -3,7 +3,7 @@ const cors = require("cors");
 const app = express();
 require('dotenv').config()
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 // middlewares
 
@@ -43,8 +43,9 @@ async function run() {
     app.get("/users/:email",async(req,res)=>{
       const email = req.params.email;
       const query = {email:email}
+      
       const result = await usersCollection.findOne(query)
-      res.send(result);
+      res.send(result)
     })
     app.patch("/users/:email",async(req,res)=>{
       const email = req.params.email;
@@ -81,6 +82,33 @@ async function run() {
       res.send(posts);
     })
 
+    app.get("/dashboard/post/:id",async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id) }
+      const result = await postCollection.deleteOne(query)
+      res.send(result);
+    })
+    app.get("/dashboard/postedit/:id",async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await postCollection.findOne(query)
+      res.send(result)
+    })
+    app.patch("/dashboard/postedit/:id",async(req,res)=>{
+      const id = req.params.id;
+      const body = req.body;
+      const query = {_id: new ObjectId(id)}
+      const updateDoc = {
+        $set: {
+          title: body.title,
+          discription:body.discription
+        },
+      };
+      const result = await postCollection.updateOne(query,updateDoc);
+      res.send(result);
+      
+    })
+
     app.post("/dashboard/newpost", async(req,res)=>{
       const userPost = req.body;
       const result = await postCollection.insertOne(userPost);
@@ -96,7 +124,6 @@ async function run() {
     })
     app.post("/permit",async(req,res)=>{
       const permits = req.body;
-      console.log(permits);
       const result = await permitCollection.insertOne(permits);
       res.send(result);
     })
